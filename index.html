@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deron WiFi Payment Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background-color: #004d00;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        header {
+            background-color: #003300;
+            padding: 15px;
+            text-align: center;
+        }
+        .plans {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .plan {
+            background: linear-gradient(to bottom, #33cc33, #009900);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px;
+            text-align: center;
+            color: white;
+            width: 200px;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+        .plan:hover {
+            transform: scale(1.1);
+            background-color: #00cc00;
+        }
+        button {
+            background-color: #006600;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        button:hover {
+            transform: scale(1.1);
+            background-color: #009900;
+        }
+        button:active {
+            transform: scale(1.2);
+        }
+        .payment-form, .voucher-section, .unique-code-section {
+            text-align: center;
+            margin-top: 20px;
+            background-color: #004d00;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .message {
+            color: yellow;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Connect Deron WiFi</h1>
+        <p>For assistance, call: 0797003660</p>
+    </header>
+    
+    <div class="voucher-section" id="voucher-section">
+        <h3>Enter Voucher Code</h3>
+        <input type="text" id="voucher-code" placeholder="Voucher Code" required>
+        <button id="confirm-voucher">Connect Now</button>
+        <p class="message" id="voucher-message"></p>
+    </div>
+    
+    <div class="unique-code-section" id="unique-code-section">
+        <h3>Enter Unique Code</h3>
+        <input type="text" id="unique-code" placeholder="Unique Code" required>
+        <button id="confirm-unique">Connect Now</button>
+        <p class="message" id="unique-message"></p>
+    </div>
+    
+    <main>
+        <div class="plans">
+            <div class="plan" data-price="10" data-duration="1">
+                <h2>1 Hour Unlimited</h2>
+                <p>ksh 10</p>
+                <button class="pay-btn">Purchase</button>
+            </div>
+            <div class="plan" data-price="20" data-duration="6">
+                <h2>6 Hours Unlimited</h2>
+                <p>ksh 20</p>
+                <button class="pay-btn">Purchase</button>
+            </div>
+            <div class="plan" data-price="60" data-duration="24">
+                <h2>24 Hours Unlimited</h2>
+                <p>ksh 60</p>
+                <button class="pay-btn">Purchase</button>
+            </div>
+            <div class="plan" data-price="200" data-duration="7">
+                <h2>1 Week Unlimited</h2>
+                <p>ksh 200</p>
+                <button class="pay-btn">Purchase</button>
+            </div>
+            <div class="plan" data-price="220" data-duration="10">
+                <h2>10 Days Unlimited</h2>
+                <p>ksh 220</p>
+                <button class="pay-btn">Purchase</button>
+            </div>
+            <div class="plan" data-price="330" data-duration="15">
+                <h2>15 Days Unlimited</h2>
+                <p>ksh 330</p>
+                <button class="pay-btn">Purchase</button>
+            </div>
+            <div class="plan" data-price="500" data-duration="30">
+                <h2>1 Month (One Device) Unlimited</h2>
+                <p>ksh 500</p>
+                <button class="pay-btn">Purchase</button>
+            </div>
+            <div class="plan" data-price="700" data-duration="30">
+                <h2>1 Month (Two Devices) Unlimited</h2>
+                <p>ksh 700</p>
+                <button class="pay-btn">Purchase</button>
+            </div>
+        </div>
+    </main>
+    
+    <div class="payment-form" id="payment-form" style="display: none;">
+        <h3>Enter Your Phone Number</h3>
+        <input type="tel" id="phone-number" placeholder="07XXXXXXXX" required>
+        <button id="submit-payment">Confirm Payment</button>
+        <p class="message" id="payment-message"></p>
+    </div>
+    
+    <script>
+        document.querySelectorAll('.pay-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                this.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 200);
+
+                document.getElementById('payment-form').style.display = 'block';
+                document.getElementById('phone-number').focus();
+            });
+        });
+        
+        document.getElementById('submit-payment').addEventListener('click', async function() {
+            const phoneNumber = document.getElementById('phone-number').value.trim();
+            if (!phoneNumber.match(/^07\d{8}$/)) {
+                document.getElementById('payment-message').textContent = "Invalid phone number.";
+                return;
+            }
+            
+            document.getElementById('payment-message').textContent = "Processing payment...";
+            
+            const response = await fetch('/api/initiate-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: phoneNumber })
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                document.getElementById('payment-message').textContent = "Payment request sent. Check your phone to enter PIN.";
+            } else {
+                document.getElementById('payment-message').textContent = "Payment failed. Try again.";
+            }
+        });
+    </script>
+</body>
+</html>
